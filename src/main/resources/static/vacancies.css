@@ -1,0 +1,7 @@
+body {
+    overflow-y: hidden;
+}
+
+#card-wrapper {
+    margin-bottom: 1rem;
+}

@@ -1,0 +1,150 @@
+package JobHunter.service;
+
+import JobHunter.domain.Role;
+import JobHunter.domain.User;
+import JobHunter.repo.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class UserService implements UserDetailsService {
+
+	private final UserRepo userRepo;
+	private final MailSender mailSender;
+	private final PasswordEncoder passwordEncoder;
+
+	@Autowired
+	public UserService(UserRepo userRepo, MailSender mailSender, PasswordEncoder passwordEncoder) {
+		this.userRepo = userRepo;
+		this.mailSender = mailSender;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userRepo.findUserByUsername(username);
+
+		if (user == null) {
+			throw new UsernameNotFoundException("user not found");
+		}
+
+		return user;
+	}
+
+	public boolean addUser(User user) {
+		User userFromDb = userRepo.findUserByUsername(user.getUsername());
+
+		if (userFromDb != null) {
+			return false;
+		}
+
+		user.setRoles(Collections.singleton(Role.USER));
+		user.setActivationCode(UUID.randomUUID().toString());
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+		userRepo.save(user);
+
+		sendMessage(user);
+
+		return true;
+	}
+
+	private void sendMessage(User user) {
+		if (!StringUtils.isEmpty(user.getEmail())) {
+			String message = String.format(
+					"Hello, %s! \n" +
+							"Weclome to JobHunter. Please visit next link: http://localhost:8080/activate/%s",
+					user.getUsername(),
+					user.getActivationCode()
+			);
+
+			mailSender.send(user.getEmail(), "Activation code", message);
+		}
+	}
+
+	public boolean activateUser(String code) {
+		User user = userRepo.findByActivationCode(code);
+
+		if (user == null)
+			return false;
+
+		user.setActivationCode(null);
+		user.setActive(true);
+		userRepo.save(user);
+
+		return true;
+	}
+
+	public void saveUser(User user, String username, Map<String, String> form) {
+		user.setUsername(username);
+
+		Set<String> roles = Arrays.stream(Role.values())
+				.map(Role::name)
+				.collect(Collectors.toSet());
+
+		user.getRoles().clear();
+
+		for (String key : form.keySet()) {
+			if (roles.contains(key)) {
+				user.getRoles().add(Role.valueOf(key));
+			}
+		}
+
+		userRepo.save(user);
+	}
+
+	public void updateProfile(User user, String username, String password, String email, String firstName,
+							  String lastName, String education, Float experience, String phone) {
+		String userEmail = user.getEmail();
+
+		boolean isEmailChanged = (email != null && !email.equals(userEmail)) ||
+				(userEmail != null && !userEmail.equals(email));
+
+		if (isEmailChanged) {
+			user.setEmail(email);
+
+			if (!StringUtils.isEmpty(email)) {
+				user.setActivationCode(UUID.randomUUID().toString());
+				user.setActive(false);
+			}
+		}
+
+		if (!StringUtils.isEmpty(password))
+			user.setPassword(passwordEncoder.encode(password));
+
+		if (!StringUtils.isEmpty(username))
+			user.setUsername(username);
+
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setEducation(education);
+		user.setExperience(experience);
+		user.setPhone(phone);
+
+		userRepo.save(user);
+
+		if (isEmailChanged)
+			sendMessage(user);
+
+	}
+
+	public boolean profileIsFilled(User user) {
+		return user.getFirstName() != null && !user.getFirstName().isEmpty() &&
+				user.getLastName() != null && !user.getLastName().isEmpty() &&
+				user.getEducation() != null && !user.getEducation().isEmpty() &&
+				user.getExperience() != null && !user.getExperience().toString().isEmpty() &&
+				user.getPhone() != null && !user.getPhone().isEmpty();
+	}
+
+	public List<User> findUsersByRoles(Role role) {
+		return userRepo.findUsersByRoles(role);
+	}
+}
