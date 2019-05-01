@@ -2,7 +2,6 @@ package JobHunter.service;
 
 import JobHunter.domain.Department;
 import JobHunter.domain.Vacancy;
-import JobHunter.repo.DepartmentRepo;
 import JobHunter.repo.VacancyRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,18 +10,14 @@ import org.springframework.stereotype.Service;
 public class VacancyService {
 
 	private final VacancyRepo vacancyRepo;
-	private final DepartmentRepo departmentRepo;
 
 	@Autowired
-	public VacancyService(VacancyRepo vacancyRepo, DepartmentRepo departmentRepo) {
+	public VacancyService(VacancyRepo vacancyRepo) {
 		this.vacancyRepo = vacancyRepo;
-		this.departmentRepo = departmentRepo;
 	}
 
-	public void addVacancy(Long departmentId, String vacancyName, String description, Float salary) {
-		Department departmentFromDb = departmentRepo.findById(departmentId).orElse(null);
-
-		Vacancy vacancy = new Vacancy(departmentFromDb, vacancyName, description, salary);
+	public void addVacancy(Department department, String vacancyName, String description, Float salary) {
+		Vacancy vacancy = new Vacancy(department, vacancyName, description, salary);
 		vacancyRepo.save(vacancy);
 	}
 }

@@ -5,3 +5,7 @@ body {
 #card-wrapper {
     margin-bottom: 1rem;
 }
+
+.createBtn {
+    display: contents;
+}

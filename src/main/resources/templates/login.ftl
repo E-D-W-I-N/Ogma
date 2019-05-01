@@ -8,9 +8,12 @@
         </div>
     </#if>
     <#if message??>
-        <div class="alert alert-${messageType}" role="alert">
+        <div class="alert alert-${messageType} alert-dismissible fade show" role="alert" style="margin-top: 10px;">
             ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </#if>
-    <@l.login "/login" false/>
+    <@l.login "/login" false false/>
 </@c.page>

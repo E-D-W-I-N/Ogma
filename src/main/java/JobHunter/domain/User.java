@@ -1,40 +1,50 @@
 package JobHunter.domain;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.Collection;
 import java.util.Set;
 
 @Entity
 @Table
-@Data
+@Getter
+@Setter
 public class User implements UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(nullable = false)
 	private Long id;
 
 	@NotBlank(message = "Username can't be empty")
 	private String username;
+
 	@NotBlank(message = "Password can't be empty")
 	private String password;
 
+	@NotBlank(message = "First Name can't be empty")
 	private String firstName;
+
+	@NotBlank(message = "Last Name can't be empty")
 	private String lastName;
+
 	private boolean active;
 	private String activationCode;
-	private Float experience;
+	private String experience;
 	private String education;
 
 	@Email(message = "Email is not correct")
 	@NotBlank(message = "Please fill the Email address")
 	private String email;
+
+	@Pattern(regexp = "\\+\\d(-\\d{3}){2}-\\d{4}",
+			message = "Please, fill your phone number using right number format. For example: +7-903-503-9832")
 	private String phone;
 
 	@ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
@@ -42,12 +52,9 @@ public class User implements UserDetails {
 	@Enumerated(EnumType.STRING)
 	private Set<Role> roles;
 
+	@ManyToOne
 	@JoinColumn
-	@OneToOne(cascade = CascadeType.ALL)
-	private HeadHunter headHunter;
-
-//	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//	private Set<Application> applications;
+	private Department department;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -76,5 +83,9 @@ public class User implements UserDetails {
 
 	public boolean isAdmin() {
 		return roles.contains(Role.ADMIN);
+	}
+
+	public boolean isHeadHunter() {
+		return roles.contains(Role.HEADHUNTER);
 	}
 }

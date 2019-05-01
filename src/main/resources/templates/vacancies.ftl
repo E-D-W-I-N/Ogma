@@ -1,12 +1,12 @@
+<#include "parts/security.ftl">
 <#import "parts/common.ftl" as c>
 <#import "parts/vacancyAdd.ftl" as v>
-<#assign security=JspTaglibs["http://www.springframework.org/security/tags"] />
 
 <@c.page>
     <link rel="stylesheet" href="/static/vacancies.css">
-    <@security.authorize  access="hasAnyAuthority('ADMIN', 'HEADHUNTER')">
+    <#if isAdmin || isHeadHunter>
         <@v.vacancyAdd />
-    </@security.authorize>
+    </#if>
     <#if message??>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">${message}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -14,7 +14,7 @@
             </button>
         </div>
     </#if>
-    List of Vacancies
+    Список вакансий
     <div class="row">
         <div class="col-4">
             <div class="list-group" id="list-tab" role="tablist">
@@ -24,7 +24,7 @@
                         <span class="badge badge-primary badge-pill ml-3">${department.vacancies?size}</span>
                     </a>
                 <#else>
-                    No Departments
+                    Нет отделов
                 </#list>
             </div>
         </div>
@@ -46,12 +46,12 @@
                                         <p class="card-text">${vacancy.description}</p>
                                     </div>
                                     <div class="card-footer">
-                                        <form method="post">
+                                        <form action="/applications/add" method="post">
                                             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
                                             <input type="hidden" name="vacancyId" value="${vacancy.id}"/>
-                                            <button type="submit" class="btn btn-primary btn-block"><p
-                                                        style="font-size: calc(0.5vw + 1vh + 0.8vmin);">
-                                                    Create Application</p></button>
+                                            <button type="submit" class="btn btn-primary btn-block">
+                                                <p class="createBtn">Подать заявление</p>
+                                            </button>
                                         </form>
                                     </div>
                                 </div>
@@ -60,7 +60,7 @@
                         </div>
                         </div>
                     <#else>
-                        No Vacancies
+                        <p style="position: absolute;">Нет вакансий</p>
                     </#list>
                 </#list>
             </div>

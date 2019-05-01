@@ -1,5 +1,6 @@
 package JobHunter.service;
 
+import JobHunter.domain.Department;
 import JobHunter.domain.Role;
 import JobHunter.domain.User;
 import JobHunter.repo.UserRepo;
@@ -22,7 +23,8 @@ public class UserService implements UserDetailsService {
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UserService(UserRepo userRepo, MailSender mailSender, PasswordEncoder passwordEncoder) {
+	public UserService(UserRepo userRepo, MailSender mailSender,
+					   PasswordEncoder passwordEncoder) {
 		this.userRepo = userRepo;
 		this.mailSender = mailSender;
 		this.passwordEncoder = passwordEncoder;
@@ -32,9 +34,8 @@ public class UserService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User user = userRepo.findUserByUsername(username);
 
-		if (user == null) {
-			throw new UsernameNotFoundException("user not found");
-		}
+		if (user == null)
+			throw new UsernameNotFoundException("Пользователь не найден");
 
 		return user;
 	}
@@ -42,9 +43,8 @@ public class UserService implements UserDetailsService {
 	public boolean addUser(User user) {
 		User userFromDb = userRepo.findUserByUsername(user.getUsername());
 
-		if (userFromDb != null) {
+		if (userFromDb != null)
 			return false;
-		}
 
 		user.setRoles(Collections.singleton(Role.USER));
 		user.setActivationCode(UUID.randomUUID().toString());
@@ -83,7 +83,7 @@ public class UserService implements UserDetailsService {
 		return true;
 	}
 
-	public void saveUser(User user, String username, Map<String, String> form) {
+	public void saveUser(User user, String username, Map<String, String> form, Department department) {
 		user.setUsername(username);
 
 		Set<String> roles = Arrays.stream(Role.values())
@@ -95,6 +95,8 @@ public class UserService implements UserDetailsService {
 		for (String key : form.keySet()) {
 			if (roles.contains(key)) {
 				user.getRoles().add(Role.valueOf(key));
+				if (Role.valueOf(key) == Role.HEADHUNTER)
+					user.setDepartment(department);
 			}
 		}
 
@@ -102,20 +104,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public void updateProfile(User user, String username, String password, String email, String firstName,
-							  String lastName, String education, Float experience, String phone) {
-		String userEmail = user.getEmail();
-
-		boolean isEmailChanged = (email != null && !email.equals(userEmail)) ||
-				(userEmail != null && !userEmail.equals(email));
-
-		if (isEmailChanged) {
-			user.setEmail(email);
-
-			if (!StringUtils.isEmpty(email)) {
-				user.setActivationCode(UUID.randomUUID().toString());
-				user.setActive(false);
-			}
-		}
+							  String lastName, String education, String experience, String phone) {
 
 		if (!StringUtils.isEmpty(password))
 			user.setPassword(passwordEncoder.encode(password));
@@ -129,18 +118,24 @@ public class UserService implements UserDetailsService {
 		user.setExperience(experience);
 		user.setPhone(phone);
 
-		userRepo.save(user);
+		String userEmail = user.getEmail();
+		boolean isEmailChanged = (email != null && !StringUtils.isEmpty(email) && !email.equals(userEmail)) ||
+				(userEmail != null && !StringUtils.isEmpty(userEmail) && !userEmail.equals(email));
 
-		if (isEmailChanged)
+		if (isEmailChanged) {
+			user.setEmail(email);
+			user.setActivationCode(UUID.randomUUID().toString());
+			user.setActive(false);
 			sendMessage(user);
+		}
+
+		userRepo.save(user);
 
 	}
 
 	public boolean profileIsFilled(User user) {
 		return user.getFirstName() != null && !user.getFirstName().isEmpty() &&
 				user.getLastName() != null && !user.getLastName().isEmpty() &&
-				user.getEducation() != null && !user.getEducation().isEmpty() &&
-				user.getExperience() != null && !user.getExperience().toString().isEmpty() &&
 				user.getPhone() != null && !user.getPhone().isEmpty();
 	}
 

@@ -1,6 +1,7 @@
 package JobHunter.service;
 
 import JobHunter.domain.Department;
+import JobHunter.domain.User;
 import JobHunter.repo.DepartmentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,11 @@ public class DepartmentService {
 		this.departmentRepo = departmentRepo;
 	}
 
-	public boolean addDepartment(String departmentName) {
+	public boolean addDepartment(Department department) {
 
-		if (departmentRepo.findDepartmentByDepartmentName(departmentName) != null)
+		if (departmentRepo.findDepartmentByDepartmentName(department.getDepartmentName()) != null)
 			return false;
 
-		Department department = new Department(departmentName);
 		departmentRepo.save(department);
 
 		return true;
@@ -30,5 +30,9 @@ public class DepartmentService {
 
 	public List<Department> findAllDepartments() {
 		return departmentRepo.findAll();
+	}
+
+	public Department findDepartmentByUser(User user) {
+		return departmentRepo.findDepartmentByHeadHuntersContains(user);
 	}
 }

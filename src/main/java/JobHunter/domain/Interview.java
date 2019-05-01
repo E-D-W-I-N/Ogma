@@ -10,15 +10,14 @@ import java.time.LocalDateTime;
 @Table
 @Getter
 @Setter
-public class Application {
+public class Interview {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn
-	private Vacancy vacancy;
+	@OneToOne(fetch = FetchType.EAGER, mappedBy = "interview")
+	private Application application;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn
@@ -26,21 +25,22 @@ public class Application {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn
-	private User user;
+	private User headHunter;
 
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn
-	private Interview interview;
+	private User candidate;
 
 	private LocalDateTime dateTime;
 
-	public Application() {
+	public Interview() {
 	}
 
-	public Application(Vacancy vacancy, Department department, User user, LocalDateTime dateTime) {
-		this.vacancy = vacancy;
+	public Interview(Application application, Department department, User headHunter, User candidate, LocalDateTime dateTime) {
+		this.application = application;
 		this.department = department;
-		this.user = user;
+		this.headHunter = headHunter;
+		this.candidate = candidate;
 		this.dateTime = dateTime;
 	}
 }
