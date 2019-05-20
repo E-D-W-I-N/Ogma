@@ -15,6 +15,7 @@
         <@d.departmentAdd />
     </#if>
     <div class="table-responsive">Список отделений
+        <a href="/departments/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
         <table class="table">
             <thead>
             <tr>

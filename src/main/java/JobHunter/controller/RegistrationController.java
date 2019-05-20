@@ -58,7 +58,7 @@ public class RegistrationController {
 		}
 
 		model.addAttribute("messageType", "success");
-		model.addAttribute("message", "На указанную почту была выслаа ссылка для активации аккаунта");
+		model.addAttribute("message", "На указанную почту была выслана ссылка для активации аккаунта");
 		return "registration";
 	}
 

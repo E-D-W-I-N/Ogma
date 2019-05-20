@@ -4,7 +4,12 @@ import JobHunter.domain.*;
 import JobHunter.service.ApplicationService;
 import JobHunter.service.DepartmentService;
 import JobHunter.service.InterviewService;
+import JobHunter.util.PDFGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -14,8 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -51,6 +59,41 @@ public class InterviewController {
 		Iterable<Interview> interviews = interviewService.findInterviewsByCandidate(user);
 		model.addAttribute("interviews", interviews);
 		return "interviews";
+	}
+
+	@GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<InputStreamResource> interviewsReport(@AuthenticationPrincipal User user) {
+		List<Interview> interviews = new ArrayList<>();
+		if (user.getRoles().contains(Role.ADMIN)) {
+			interviews = interviewService.findAllInterviews();
+		} else if (user.getRoles().contains(Role.HEADHUNTER)) {
+			Department department = departmentService.findDepartmentByUser(user);
+			interviews = interviewService.findInterviewsByDepartment(department);
+		} else
+			interviews = interviewService.findInterviewsByCandidate(user);
+
+		String title = "Собеседования";
+		List<String> tableHeader = Arrays.asList("ID", "Вакансия", "Отдел", "Кандидат", "Работник", "Дата", "Время");
+		List content = new ArrayList();
+
+		for (Interview interview : interviews) {
+			content.add(Arrays.asList(interview.getId().toString(), interview.getApplication().getVacancy().getVacancyName(),
+					interview.getDepartment().getDepartmentName(), interview.getApplication().getUser().getUsername(),
+					interview.getHeadHunter().getUsername(), interview.getDateTime().toLocalDate().toString(),
+					interview.getDateTime().toLocalTime().toString().substring(0, 8)));
+		}
+
+
+		ByteArrayInputStream bis = PDFGenerator.customerPDFReport(title, tableHeader, content);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "inline; filename=interviews.pdf");
+
+		return ResponseEntity
+				.ok()
+				.headers(headers)
+				.contentType(MediaType.APPLICATION_PDF)
+				.body(new InputStreamResource(bis));
 	}
 
 	@PostMapping("/add")

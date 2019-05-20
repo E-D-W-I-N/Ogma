@@ -15,6 +15,7 @@
         </div>
     </#if>
     Список вакансий
+    <a href="/vacancy/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
     <div class="row">
         <div class="col-4">
             <div class="list-group" id="list-tab" role="tablist">

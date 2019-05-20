@@ -2,6 +2,7 @@
 
 <@c.page>
     <div class="table-responsive">Список пользователей
+        <a href="/user/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
         <table class="table">
             <thead>
             <tr>

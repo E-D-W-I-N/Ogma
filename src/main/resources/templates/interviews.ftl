@@ -3,6 +3,7 @@
 
 <@c.page>
     <div class="table-responsive">Список собеседований
+        <a href="/interviews/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
         <table class="table">
             <thead>
             <tr>

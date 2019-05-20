@@ -4,7 +4,12 @@ import JobHunter.domain.*;
 import JobHunter.service.ApplicationService;
 import JobHunter.service.DepartmentService;
 import JobHunter.service.UserService;
+import JobHunter.util.PDFGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +18,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -52,6 +60,40 @@ public class ApplicationController {
 
 		model.addAttribute("applications", applications);
 		return "applications";
+	}
+
+	@GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<InputStreamResource> applicationsReport(@AuthenticationPrincipal User user) {
+		List<Application> applications = new ArrayList<>();
+		if (user.getRoles().contains(Role.ADMIN)) {
+			applications = applicationService.findAllApplications();
+		} else if (user.getRoles().contains(Role.HEADHUNTER)) {
+			Department department = departmentService.findDepartmentByUser(user);
+			applications = applicationService.findApplicationsByDepartment(department);
+		} else
+			applications = applicationService.findApplicationsByUser(user);
+
+		String title = "Заявления";
+		List<String> tableHeader = Arrays.asList("ID", "Вакансия", "Отдел", "Кандидат", "Дата", "Время");
+		List content = new ArrayList();
+
+		for (Application application : applications) {
+			content.add(Arrays.asList(application.getId().toString(), application.getVacancy().getVacancyName(),
+					application.getDepartment().getDepartmentName(), application.getUser().getUsername(),
+					application.getDateTime().toLocalDate().toString(), application.getDateTime().toLocalTime().toString().substring(0, 8)));
+		}
+
+
+		ByteArrayInputStream bis = PDFGenerator.customerPDFReport(title, tableHeader, content);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "inline; filename=applications.pdf");
+
+		return ResponseEntity
+				.ok()
+				.headers(headers)
+				.contentType(MediaType.APPLICATION_PDF)
+				.body(new InputStreamResource(bis));
 	}
 
 	@PostMapping("/delete")

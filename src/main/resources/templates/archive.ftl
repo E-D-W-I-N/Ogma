@@ -1,6 +1,7 @@
 <#import "parts/common.ftl" as c>
 <@c.page>
     <div class="table-responsive">Архив
+        <a href="/archive/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
         <table class="table">
             <thead>
             <tr>

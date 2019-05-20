@@ -6,9 +6,14 @@ import JobHunter.domain.User;
 import JobHunter.domain.dto.UserDto;
 import JobHunter.service.DepartmentService;
 import JobHunter.service.UserService;
+import JobHunter.util.PDFGenerator;
 import JobHunter.util.ValidateCaptchaAndPasswordConfirm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -18,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +53,31 @@ public class UserController {
 		model.addAttribute("users", userService.findUsersByRoles(Role.USER));
 
 		return "userList";
+	}
+
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<InputStreamResource> usersReport() {
+		List<User> users = userService.findUsersByRoles(Role.USER);
+		String title = "Пользователи";
+		List<String> tableHeader = Arrays.asList("ID", "Логин", "Имя", "Фамилия", "Email", "Телефон", "Образование", "Опыт");
+		List content = new ArrayList();
+		for (User user : users) {
+			content.add(Arrays.asList(user.getId().toString(), user.getUsername(), user.getFirstName(), user.getLastName(),
+					user.getEmail(), user.getPhone(), user.getEducation(), user.getExperience()));
+		}
+
+
+		ByteArrayInputStream bis = PDFGenerator.customerPDFReport(title, tableHeader, content);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "inline; filename=users.pdf");
+
+		return ResponseEntity
+				.ok()
+				.headers(headers)
+				.contentType(MediaType.APPLICATION_PDF)
+				.body(new InputStreamResource(bis));
 	}
 
 	@PreAuthorize("hasAuthority('ADMIN')")

@@ -16,6 +16,7 @@
         </div>
     </#if>
     Список заявлений
+    <a href="/applications/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
     <div class="wrapper">
         <div class="container">
             <div class="row">
