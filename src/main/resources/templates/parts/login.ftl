@@ -83,7 +83,7 @@
                 <label class="col-auto col-form-label">Телефон:</label>
                 <div class="col-auto">
                     <input type="tel" name="phone"
-                           class="form-control ${(phoneError??)?string('is-invalid', '')}" placeholder="+7-999-999-99"
+                           class="form-control ${(phoneError??)?string('is-invalid', '')}" placeholder="+7-XXX-XXX-XXXX"
                            pattern="\+\d(-\d{3}){2}-\d{4}"
                            value="<#if user??>${user.phone}</#if>"/>
                     <#if phoneError??>
@@ -91,20 +91,6 @@
                             ${phoneError}
                         </div>
                     </#if>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-auto col-form-label">Образование:</label>
-                <div class="col-auto">
-                    <input type="text" name="education" class="form-control"
-                           placeholder="Образование" value="<#if user?? && user.education??>${user.education}</#if>"/>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-sm-1 col-form-label">Опыт работы:</label>
-                <div class="col-sm-3">
-                    <input type="text" name="experience" class="form-control"
-                           placeholder="Опыт работы" value="<#if user?? && user.experience??>${user.experience}</#if>"/>
                 </div>
             </div>
 

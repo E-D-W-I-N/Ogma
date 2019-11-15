@@ -5,7 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edwin</groupId>
-    <artifactId>JobHunter</artifactId>
+    <artifactId>Ogma</artifactId>
+    <name>Ogma</name>
+    <description>Sample of the product shop</description>
     <version>1.0</version>
 
     <parent>
@@ -20,8 +22,9 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-freemarker</artifactId>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.29</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -37,10 +40,9 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -52,7 +54,6 @@
             <artifactId>javassist</artifactId>
             <version>3.24.1-GA</version>
         </dependency>
-        <!-- Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -73,7 +74,6 @@
     <properties>
         <java.version>11</java.version>
     </properties>
-
 
     <build>
         <plugins>

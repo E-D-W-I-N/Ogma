@@ -1,8 +1,8 @@
 <#import "parts/common.ftl" as c>
 
 <@c.page>
-    <div class="table-responsive">Список пользователей
-        <a href="/user/pdf" class="btn btn-primary mb-2" style="float: right">PDF</a>
+    <div class="table-responsive">
+        <a href="/user/pdf" class="btn btn-primary m-2" style="float: right">PDF</a>
         <table class="table">
             <thead>
             <tr>

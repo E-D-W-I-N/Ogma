@@ -3,7 +3,7 @@
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>JobHunter</title>
+        <title>Ogma</title>
 
         <!-- Required meta tags -->
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">

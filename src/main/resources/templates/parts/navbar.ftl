@@ -2,7 +2,7 @@
 <#import "login.ftl" as l>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="/">JobHunter</a>
+    <a class="navbar-brand" href="/">Ogma</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -14,22 +14,14 @@
                 <a class="nav-link" href="/">Главная</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/vacancy">Вакансии</a>
+                <a class="nav-link" href="/catalog/products/books">Книги</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/departments">Отделы</a>
+                <a class="nav-link" href="/catalog/products/office-supplies">Канцелярия</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/applications">Заявления</a>
+                <a class="nav-link" href="/catalog/products/souvenirs">Сувениры</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/interviews">Собеседования</a>
-            </li>
-            <#if isAdmin || isHeadHunter>
-                <li class="nav-item">
-                    <a class="nav-link" href="/archive">Архив</a>
-                </li>
-            </#if>
             <#if isAdmin>
                 <li class="nav-item">
                     <a class="nav-link" href="/user">Пользователи</a>
@@ -43,6 +35,7 @@
         </ul>
 
         <div class="navbar-text mr-3"><#if currentUserId != -1>${name}<#else>Пожалуйста, войдите в аккаунт </#if></div>
+        <a class="btn btn-primary m-2" href="/shoppingCart">Корзина</a>
         <@l.logout/>
     </div>
 </nav>
