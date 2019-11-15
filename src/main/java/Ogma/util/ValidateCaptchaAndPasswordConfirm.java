@@ -28,15 +28,15 @@ public class ValidateCaptchaAndPasswordConfirm {
 		assert password != null;
 		if (!password.isEmpty()) {
 			if (passwordIsEmpty)
-				resultMap.put("password2Error", "Password confirmation can't be empty");
+                resultMap.put("password2Error", "Повторный пароль не может быть пустым");
 
 			if (passwordIsDifferent)
-				resultMap.put("passwordError", "Passwords are different!");
+                resultMap.put("passwordError", "Пароли отличаются");
 		}
 
 		assert response != null;
 		if (!response.isSuccess())
-			resultMap.put("captchaError", "Fill captcha");
+            resultMap.put("captchaError", "Похоже вы все таки робот");
 
 		if (passwordIsEmpty || passwordIsDifferent || !response.isSuccess() || bindingResult.hasErrors())
 			resultMap.putAll(getErrors(bindingResult));

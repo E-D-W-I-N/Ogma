@@ -85,9 +85,10 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MODERATOR')")
     public String add(
-            @Valid Product product,
             @RequestParam("file") MultipartFile file,
-            @RequestParam Map<String, String> form, Model model) throws IOException {
+            @RequestParam Map<String, String> form,
+            @Valid Product product,
+            Model model) throws IOException {
 
         if (file != null) {
             File uploadDir = new File(uploadPath);
